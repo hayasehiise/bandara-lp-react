@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, Link, Menu, Portal } from "@chakra-ui/react";
+import { Button, Flex, Image, Link, Menu, Portal } from "@chakra-ui/react";
 import { FaAngleDoubleDown } from "react-icons/fa";
 
 export default function Navbar() {
@@ -9,12 +9,15 @@ export default function Navbar() {
       justify={"space-between"}
       backgroundColor={"blue.500"}
     >
-      <Image
-        src={"image/brand.png"}
-        height={"20%"}
-        width={"20%"}
-        marginY={"auto"}
-      />
+      <Link asChild href="/">
+        <Image
+          src={"image/brand.png"}
+          height={"20%"}
+          width={"20%"}
+          marginY={"auto"}
+          alt="Brand Website"
+        />
+      </Link>
       {/* bagian menu */}
       <Flex direction={"row"} gap={"3"}>
         <Button variant={"ghost"} border={"none"} asChild>
