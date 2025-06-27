@@ -4,10 +4,10 @@ import { useState } from "react";
 import { FaPlaneArrival, FaPlaneDeparture } from "react-icons/fa";
 
 export default function LiveInfoAirplane() {
-  const [showActiveIframe, setShowActiveIframe] = useState(null);
+  const [showActiveIframe, setShowActiveIframe] = useState<string | null>(null);
 
-  const toggleIframe = (id) => {
-    setShowActiveIframe((prev) => (prev === id ? "null" : id));
+  const toggleIframe = (id: string) => {
+    setShowActiveIframe((prev) => (prev === id ? null : id));
   };
   return (
     <>
