@@ -4,8 +4,11 @@ import { useState } from "react";
 import { FaPlaneArrival, FaPlaneDeparture } from "react-icons/fa";
 
 export default function LiveInfoAirplane() {
-  const [showArrival, setShowArrival] = useState(false);
-  const [showDeparture, setShowDeparture] = useState(false);
+  const [showActiveIframe, setShowActiveIframe] = useState(null);
+
+  const toggleIframe = (id) => {
+    setShowActiveIframe((prev) => (prev === id ? "null" : id));
+  };
   return (
     <>
       <Flex
@@ -19,41 +22,31 @@ export default function LiveInfoAirplane() {
           Info Live Penerbangan
         </Heading>
         <HStack justify={"center"} marginTop={3} marginBottom={5}>
-          <Button
-            onClick={() => {
-              setShowArrival(!showArrival);
-              setShowDeparture(false);
-            }}
-          >
+          <Button onClick={() => toggleIframe("arrival")}>
             <FaPlaneArrival />
             <Heading size={"2xl"}>Arrival</Heading>
           </Button>
-          <Button
-            onClick={() => {
-              setShowDeparture(!showDeparture);
-              setShowArrival(false);
-            }}
-          >
+          <Button onClick={() => toggleIframe("departure")}>
             <FaPlaneDeparture />
             <Heading size={"2xl"}>Departure</Heading>
           </Button>
         </HStack>
         {/* IFrame Live Schedule Bandara */}
-        {showArrival && (
+        {showActiveIframe === "arrival" && (
           <Box width={"full"}>
             <iframe
               title="arrival"
               src="http://36.91.63.220/en/display/single/arrival-information-1366/?pagetype=CMS&type=PCTV&addr=13.13.13.13"
-              className="w-[92.3%] h-dvh "
+              className="w-full h-dvh "
             />
           </Box>
         )}
-        {showDeparture && (
+        {showActiveIframe === "departure" && (
           <Box width={"full"}>
             <iframe
               title="Departure"
               src="http://36.91.63.220/en/display/single/departure-information-1366/?pagetype=PCTV&addr=12.12.12.12"
-              className="w-[92.3%] h-dvh"
+              className="w-full h-dvh"
             />
           </Box>
         )}
