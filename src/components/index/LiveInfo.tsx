@@ -33,20 +33,20 @@ export default function LiveInfoAirplane() {
         </HStack>
         {/* IFrame Live Schedule Bandara */}
         {showActiveIframe === "arrival" && (
-          <Box width={"full"}>
+          <Box width={"full"} overflow={"scroll"}>
             <iframe
               title="arrival"
               src="http://36.91.63.220/en/display/single/arrival-information-1366/?pagetype=CMS&type=PCTV&addr=13.13.13.13"
-              className="w-full h-dvh "
+              className="w-[1366px] h-dvh"
             />
           </Box>
         )}
         {showActiveIframe === "departure" && (
-          <Box width={"full"}>
+          <Box width={"full"} overflow={"scroll"}>
             <iframe
               title="Departure"
               src="http://36.91.63.220/en/display/single/departure-information-1366/?pagetype=PCTV&addr=12.12.12.12"
-              className="w-full h-dvh"
+              className="w-[1366px] h-dvh"
             />
           </Box>
         )}

@@ -1,5 +1,15 @@
-import { Button, Flex, Image, Link, Menu, Portal } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Image,
+  Link,
+  Menu,
+  Portal,
+  CloseButton,
+  Drawer,
+} from "@chakra-ui/react";
 import { FaAngleDoubleDown } from "react-icons/fa";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 export default function Navbar() {
   return (
@@ -9,17 +19,46 @@ export default function Navbar() {
       justify={"space-between"}
       backgroundColor={"blue.500"}
     >
-      <Link asChild href="/">
-        <Image
-          src={"image/brand.png"}
-          height={"20%"}
-          width={"20%"}
-          marginY={"auto"}
-          alt="Brand Website"
-        />
-      </Link>
+      <Flex width={{ lg: "20%", md: "30%", base: "60%" }}>
+        <Link asChild href="/">
+          <Image src={"image/brand.png"} marginY={"auto"} alt="Brand Website" />
+        </Link>
+      </Flex>
       {/* bagian menu */}
-      <Flex direction={"row"} gap={"3"}>
+      <Flex display={{ lg: "none", base: "flex" }}>
+        <Drawer.Root>
+          <Drawer.Trigger asChild>
+            <Button variant="ghost" size="sm">
+              <GiHamburgerMenu color="white" />
+            </Button>
+          </Drawer.Trigger>
+          <Portal>
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
+                <Drawer.Header>
+                  <Drawer.Title>Drawer Title</Drawer.Title>
+                </Drawer.Header>
+                <Drawer.Body>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua.
+                  </p>
+                </Drawer.Body>
+                <Drawer.Footer>
+                  <Button variant="outline">Cancel</Button>
+                  <Button>Save</Button>
+                </Drawer.Footer>
+                <Drawer.CloseTrigger asChild>
+                  <CloseButton size="sm" />
+                </Drawer.CloseTrigger>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Portal>
+        </Drawer.Root>
+      </Flex>
+      <Flex direction={"row"} gap={"3"} display={{ lg: "flex", base: "none" }}>
         <Button variant={"ghost"} border={"none"} asChild>
           <Link
             textDecoration={"none"}
