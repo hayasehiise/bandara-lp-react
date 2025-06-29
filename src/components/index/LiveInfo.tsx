@@ -1,14 +1,15 @@
 "use client";
-import { Box, Button, Flex, Heading, HStack } from "@chakra-ui/react";
-import { useState } from "react";
+import {
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
+import Link from "next/link";
 import { FaPlaneArrival, FaPlaneDeparture } from "react-icons/fa";
 
 export default function LiveInfoAirplane() {
-  const [showActiveIframe, setShowActiveIframe] = useState<string | null>(null);
-
-  const toggleIframe = (id: string) => {
-    setShowActiveIframe((prev) => (prev === id ? null : id));
-  };
   return (
     <>
       <Flex
@@ -22,34 +23,33 @@ export default function LiveInfoAirplane() {
           Info Live Penerbangan
         </Heading>
         <HStack justify={"center"} marginTop={3} marginBottom={5}>
-          <Button onClick={() => toggleIframe("arrival")}>
-            <FaPlaneArrival />
-            <Heading size={"2xl"}>Arrival</Heading>
+          <Button asChild>
+            <ChakraLink asChild color={"white"} textDecoration={"none"}>
+              <Link
+                href={
+                  "http://36.91.63.220/en/display/single/arrival-information-1366/?pagetype=CMS&type=PCTV&addr=13.13.13.13"
+                }
+                target="_blank"
+              >
+                <FaPlaneArrival />
+                <Heading size={"2xl"}>Arrival</Heading>
+              </Link>
+            </ChakraLink>
           </Button>
-          <Button onClick={() => toggleIframe("departure")}>
-            <FaPlaneDeparture />
-            <Heading size={"2xl"}>Departure</Heading>
+          <Button asChild>
+            <ChakraLink asChild color={"white"} textDecoration={"none"}>
+              <Link
+                href={
+                  "http://36.91.63.220/en/display/single/departure-information-1366/?pagetype=PCTV&addr=12.12.12.12"
+                }
+                target="_blank"
+              >
+                <FaPlaneDeparture />
+                <Heading size={"2xl"}>Departure</Heading>
+              </Link>
+            </ChakraLink>
           </Button>
         </HStack>
-        {/* IFrame Live Schedule Bandara */}
-        {showActiveIframe === "arrival" && (
-          <Box width={"full"} overflow={"scroll"}>
-            <iframe
-              title="arrival"
-              src="http://36.91.63.220/en/display/single/arrival-information-1366/?pagetype=CMS&type=PCTV&addr=13.13.13.13"
-              className="w-[1366px] h-dvh"
-            />
-          </Box>
-        )}
-        {showActiveIframe === "departure" && (
-          <Box width={"full"} overflow={"scroll"}>
-            <iframe
-              title="Departure"
-              src="http://36.91.63.220/en/display/single/departure-information-1366/?pagetype=PCTV&addr=12.12.12.12"
-              className="w-[1366px] h-dvh"
-            />
-          </Box>
-        )}
       </Flex>
     </>
   );

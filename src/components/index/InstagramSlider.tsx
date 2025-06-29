@@ -5,14 +5,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import {
-  Autoplay,
-  Navigation,
-  Pagination,
-  Scrollbar,
-  A11y,
-} from "swiper/modules";
-import { Box, Flex } from "@chakra-ui/react";
+import { Autoplay, Pagination, Scrollbar, A11y } from "swiper/modules";
+import { Flex } from "@chakra-ui/react";
 
 export default function InstagramSlider() {
   const instagramFeed = [
