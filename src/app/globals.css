@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+.editor-image {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 1rem 0;
+}
+
+ul,
+ol {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+li {
+  margin-left: 1rem;
+}

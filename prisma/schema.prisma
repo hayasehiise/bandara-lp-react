@@ -19,5 +19,6 @@ model News {
   title     String
   slug      String   @unique
   content   String
+  images    String[]
   createdAt DateTime @default(now())
 }

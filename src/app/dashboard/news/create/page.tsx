@@ -1,133 +1,65 @@
+// app/news/create/page.tsx
 "use client";
 
-import { Button, Field, Flex, Heading, Input, VStack } from "@chakra-ui/react";
-// import { Editor } from "@tiptap/react";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { Box, Button, Heading, Input, Stack } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster";
+import { useState } from "react";
+import TiptapEditor from "@/components/TipTapEditor";
 
-const TipTapEditor = dynamic(() => import("@/components/TitTapEditor"), {
-  ssr: false,
-});
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
 export default function CreateNews() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  //   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
-  const router = useRouter();
 
-  //   const insertImage = async (file: File) => {
-  //     const formData = new FormData();
-  //     formData.append("file", file);
-
-  //     const res = await fetch("/api/upload", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     const data = await res.json();
-  //     if (data.url) {
-  //       editorInstance?.chain().focus().setImage({ src: data.url }).run();
-  //       setUploadedImages((prev) => [...prev, data.url]);
-  //     }
-  //   };
-
-  //   const handleSubmit = async (e: React.FormEvent) => {
-  //     e.preventDefault();
-
-  //     const usedImages = Array.from(
-  //       content.matchAll(/<img[^>]+src=["']([^"']+)["']/g)
-  //     ).map((match) => match[1]);
-
-  //     const unusedImages = uploadedImages.filter(
-  //       (url) => !usedImages.includes(url)
-  //     );
-
-  //     await Promise.all(
-  //       unusedImages.map((url) =>
-  //         fetch("/api/delete", {
-  //           method: "POST",
-  //           headers: { "Content-Type": "application/json" },
-  //           body: JSON.stringify({ url }),
-  //         })
-  //       )
-  //     );
-
-  //     const res = await fetch("/api/news/create", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ title, content }),
-  //     });
-
-  //     if (res.ok) {
-  //       const data = await res.json();
-  //       router.push(`/news/${data.slug}`);
-  //     } else {
-  //       alert("Gagal menyimpan");
-  //     }
-  //   };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const usedImages = Array.from(
-      content.matchAll(/<img[^>]+src=["']([^"']+)["']/g)
-    ).map((match) => match[1]);
-
-    const unusedImages = uploadedImages.filter(
-      (url) => !usedImages.includes(url)
-    );
-
-    await Promise.all(
-      unusedImages.map((url) =>
-        fetch("/api/delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-        })
-      )
+  const handleSubmit = async () => {
+    const slug = slugify(title);
+    const usedImages = Array.from(content.matchAll(/<img src="(.*?)"/g)).map(
+      (m) => m[1]
     );
 
     const res = await fetch("/api/news/create", {
       method: "POST",
+      body: JSON.stringify({ title, slug, content, images: usedImages }),
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content }),
     });
 
     if (res.ok) {
-      const data = await res.json();
-      router.push(`/news/${data.slug}`);
+      toaster.create({
+        description: "Berita Berhasil Tersimpan",
+        type: "success",
+        closable: true,
+      });
+      setTitle("");
+      setContent("");
     } else {
-      alert("Gagal menyimpan");
+      toaster.create({
+        description: "Berita Gagal Tersimpan",
+        type: "error",
+        closable: true,
+      });
     }
   };
+
   return (
-    <>
-      <Flex direction={"column"} padding={10} gap={5}>
-        <Heading>Tambah Berita</Heading>
-        <form onSubmit={handleSubmit}>
-          <VStack width={"1/4"}>
-            <Field.Root required>
-              <Field.Label>
-                Title Berita <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                placeholder="title dari berita"
-                variant={"flushed"}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                marginBottom={5}
-              />
-            </Field.Root>
-          </VStack>
-          <TipTapEditor
-            onChange={setContent}
-            onUploadChange={(uploaded) => setUploadedImages(uploaded)}
-          />
-          <Button variant={"solid"} type="submit" marginTop={5}>
-            Simpan
-          </Button>
-        </form>
-      </Flex>
-    </>
+    <Box maxW="3xl" mx="auto" mt={10} p={5}>
+      <Heading mb={4}>Tambah Berita</Heading>
+      <Stack gap={4}>
+        <Input
+          placeholder="Judul berita"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TiptapEditor content={content} onChange={setContent} />
+        <Button colorScheme="blue" onClick={handleSubmit}>
+          Simpan
+        </Button>
+      </Stack>
+    </Box>
   );
 }
