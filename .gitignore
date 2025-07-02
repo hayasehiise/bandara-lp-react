@@ -26,6 +26,7 @@ deploy.zip
 .DS_Store
 *.pem
 .vscode
+/public/uploads
 
 # debug
 npm-debug.log*
