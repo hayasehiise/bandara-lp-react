@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,10 +14,17 @@ datasource db {
 }
 
 model News {
-  id        Int      @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   title     String
-  slug      String   @unique
+  slug      String      @unique
   content   String
-  images    String[]
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
+  images    NewsImage[]
+}
+
+model NewsImage {
+  id     Int    @id @default(autoincrement())
+  url    String
+  newsId Int
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }

@@ -1,65 +1,55 @@
-// app/news/create/page.tsx
 "use client";
 
-import { Box, Button, Heading, Input, Stack } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
 import { useState } from "react";
-import TiptapEditor from "@/components/TipTapEditor";
+import dynamic from "next/dynamic";
+import { Box, Button, Field, Fieldset, Input } from "@chakra-ui/react";
+import { createNews } from "./action";
+import { useRouter } from "next/navigation";
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
+const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
+  ssr: false,
+});
 
-export default function CreateNews() {
-  const [title, setTitle] = useState("");
+export default function CreateNewsPage() {
   const [content, setContent] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = async () => {
-    const slug = slugify(title);
-    const usedImages = Array.from(content.matchAll(/<img src="(.*?)"/g)).map(
-      (m) => m[1]
-    );
-
-    const res = await fetch("/api/news/create", {
-      method: "POST",
-      body: JSON.stringify({ title, slug, content, images: usedImages }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.ok) {
-      toaster.create({
-        description: "Berita Berhasil Tersimpan",
-        type: "success",
-        closable: true,
-      });
-      setTitle("");
-      setContent("");
-    } else {
-      toaster.create({
-        description: "Berita Gagal Tersimpan",
-        type: "error",
-        closable: true,
-      });
-    }
-  };
-
+  async function handleSubmit(formData: FormData) {
+    await createNews(formData);
+    sessionStorage.setItem("flash", "Berita berhasil ditambahkan!");
+    router.push("/dashboard/news");
+  }
   return (
-    <Box maxW="3xl" mx="auto" mt={10} p={5}>
-      <Heading mb={4}>Tambah Berita</Heading>
-      <Stack gap={4}>
-        <Input
-          placeholder="Judul berita"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <TiptapEditor content={content} onChange={setContent} />
-        <Button colorScheme="blue" onClick={handleSubmit}>
-          Simpan
+    <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
+      <form action={handleSubmit}>
+        <Fieldset.Root>
+          <Fieldset.Legend fontSize={32}>Tambah Berita</Fieldset.Legend>
+          <Field.Root>
+            <Field.Label>Title Berita</Field.Label>
+            <Input
+              width={"1/4"}
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Masukkan judul berita"
+              required
+            />
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Konten Berita</Field.Label>
+            <input type="hidden" name="content" value={content} />
+            <TinyEditor value={content} onChange={setContent} />
+          </Field.Root>
+        </Fieldset.Root>
+        <Button
+          marginTop={5}
+          type="submit"
+          colorScheme="blue"
+          alignSelf="flex-end"
+        >
+          Simpan Berita
         </Button>
-      </Stack>
+      </form>
     </Box>
   );
 }
