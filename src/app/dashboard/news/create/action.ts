@@ -23,7 +23,6 @@ export async function createNews(formData: FormData) {
     process.cwd(),
     `public/uploads/berita-${created.id}`
   );
-  await fs.mkdir(tempDir, { recursive: true });
   await fs.mkdir(targetDir, { recursive: true });
 
   const files = await fs.readdir(tempDir);

@@ -44,18 +44,10 @@ export default function TinyEditorClient({
           "removeformat | help | image media link",
         content_style:
           "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-        images_upload_handler: async (blobInfo) => {
-          const formData = new FormData();
-          formData.append("file", blobInfo.blob(), blobInfo.filename());
-
-          const res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-
-          const json = await res.json();
-          return json.url;
-        },
+        automatic_uploads: true,
+        images_reuse_filename: false,
+        // @ts-ignore: TinyMCE v7 expects 4 args, types still assume v6
+        images_upload_url: "/api/upload",
       }}
     />
   );
