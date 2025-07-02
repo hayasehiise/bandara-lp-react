@@ -1,7 +1,9 @@
 "use client";
+import { prisma } from "@/lib/prisma";
 import { Box, Text } from "@chakra-ui/react";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
+import Link from "next/link";
 
 export default function DashboardNewsPage() {
   useEffect(() => {
