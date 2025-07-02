@@ -19,12 +19,12 @@ model News {
   slug      String      @unique
   content   String
   createdAt DateTime    @default(now())
-  images    NewsImage[]
+  images    NewsImage[] @relation("gambar")
 }
 
 model NewsImage {
   id     Int    @id @default(autoincrement())
   url    String
   newsId Int
-  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  news   News   @relation("gambar", fields: [newsId], references: [id], onDelete: Cascade)
 }
