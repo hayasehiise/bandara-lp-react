@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import slugify from "slugify";
 import path from "path";
 import fs from "fs/promises";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
     let content = formData.get("content") as string;
 
     if (!title || !content) {
-      return NextResponse.json({ error: "Title dan konten wajib diisi." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Title dan konten wajib diisi." },
+        { status: 400 }
+      );
     }
 
     const created = await prisma.news.create({
@@ -23,7 +26,10 @@ export async function POST(req: NextRequest) {
     });
 
     const tempDir = path.join(process.cwd(), "public/uploads/temp");
-    const targetDir = path.join(process.cwd(), `public/uploads/berita-${created.id}`);
+    const targetDir = path.join(
+      process.cwd(),
+      `public/uploads/berita-${created.id}`
+    );
     await fs.mkdir(targetDir, { recursive: true });
 
     const files = await fs.readdir(tempDir);
@@ -54,9 +60,15 @@ export async function POST(req: NextRequest) {
       })),
     });
 
-    return NextResponse.json({ success: true, message: "Berita Berhasil Ditambahkan" }, {status: 200});
+    return NextResponse.json(
+      { success: true, message: "Berita Berhasil Ditambahkan" },
+      { status: 200 }
+    );
   } catch (err) {
     console.error("Error creating news:", err);
-    return NextResponse.json({ error: "Gagal membuat berita." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Gagal membuat berita." },
+      { status: 500 }
+    );
   }
 }
