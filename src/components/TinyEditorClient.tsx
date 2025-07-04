@@ -95,6 +95,9 @@ export default function TinyEditorClient({
           "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
         automatic_uploads: true,
         images_reuse_filename: false,
+        document_base_url: "/", // base URL untuk semua path relatif
+        relative_urls: false, // jangan pakai URL relatif
+        remove_script_host: false, // jangan hilangkan hostname dari URL
         images_upload_url: "/api/upload",
       }}
     />

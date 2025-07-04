@@ -1,9 +1,11 @@
-export function extractImageUrls(html: string): string[] {
-  const regex = /<img[^>]+src="([^">]+)"/g;
+export function extractImageUrls(content: string): string[] {
+  const imgTagRegex = /<img[^>]+src="([^">]+)"/g;
   const urls: string[] = [];
   let match;
-  while ((match = regex.exec(html))) {
+
+  while ((match = imgTagRegex.exec(content)) !== null) {
     urls.push(match[1]);
   }
+
   return urls;
 }

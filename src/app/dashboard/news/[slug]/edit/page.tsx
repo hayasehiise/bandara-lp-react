@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import dynamic from "next/dynamic";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -11,45 +11,52 @@ import {
   Flex,
   Input,
 } from "@chakra-ui/react";
-import { Toaster, toaster } from "@/components/ui/toaster";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import SpinnerLoading from "@/components/spinnerLoading";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
 });
 
-export default function CreateNewsPage() {
-  const [content, setContent] = useState("");
+export default function EditNewsPage() {
+  const { slug } = useParams();
   const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch(`/api/news/${slug}`);
+      const json = await res.json();
+      setTitle(json.title);
+      setContent(json.content);
+      setLoading(false);
+    }
+    fetchData();
+  }, [slug]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
+    const formData = new FormData(e.currentTarget);
+    formData.set("content", content);
 
-    const res = await fetch("/api/news/create", {
+    const res = await fetch(`/api/news/${slug}/edit`, {
       method: "POST",
       body: formData,
     });
 
-    const data = await res.json();
-
     if (res.ok) {
-      sessionStorage.setItem("flash", `${data.message}`);
+      sessionStorage.setItem("flash", "Berita Berhasil Diedit");
       router.push("/dashboard/news");
-    } else {
-      toaster.create({
-        description: data.error,
-        type: "error",
-      });
     }
   }
+
+  if (loading) return <SpinnerLoading />;
+
   return (
     <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
-      <Toaster />
       <form onSubmit={handleSubmit}>
         <Fieldset.Root>
           <Flex direction={"row"} justify={"space-between"}>

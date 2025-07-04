@@ -4,29 +4,32 @@ import {
   Text,
   Flex,
   Button,
-  SkeletonText,
   Table,
   Pagination,
   ButtonGroup,
 } from "@chakra-ui/react";
 import { Toaster, toaster } from "@/components/ui/toaster";
-import { FcEditImage, FcEmptyTrash } from "react-icons/fc";
+import { FcEditImage, FcEmptyTrash, FcViewDetails } from "react-icons/fc";
 import { TbChevronLeft, TbChevronRight } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import prisma from "@/lib/prisma";
+import SpinnerLoading from "@/components/spinnerLoading";
+// import { useRouter } from "next/navigation";
+// import prisma from "@/lib/prisma";
 
 type NewsData = {
+  slug: string;
   id: number;
   title: string;
   content: string;
   createdAt: string;
 };
 export default function DashboardNewsPage() {
+  // const router = useRouter();
   const [news, setNews] = useState<NewsData[]>([]);
   const [pages, setPages] = useState<number>(1);
   const [total, setTotal] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(1);
+  // const [totalPage, setTotalPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const flash = sessionStorage.getItem("flash");
@@ -36,6 +39,7 @@ export default function DashboardNewsPage() {
           description: flash,
           type: "success",
         });
+        sessionStorage.removeItem("flash");
       });
     }
   }, []);
@@ -47,11 +51,26 @@ export default function DashboardNewsPage() {
       const json = await res.json();
       setNews(json.data);
       setTotal(json.pagination.total);
-      setTotalPage(json.pagination.totalPage);
+      // setTotalPage(json.pagination.totalPage);
       setLoading(false);
     }
     fetchData();
   }, [pages]);
+
+  async function handleDelete(slug: string) {
+    const res = await fetch(`/api/news/${slug}/delete`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setNews((prev) => prev.filter((item) => item.slug !== slug));
+      setTotal((prev) => prev - 1);
+      toaster.create({
+        description: "Berita Berhasil Dihapus",
+        type: "success",
+      });
+    }
+  }
 
   return (
     <Flex p={8} direction={"column"} width={"full"} gap={5}>
@@ -62,7 +81,11 @@ export default function DashboardNewsPage() {
         </Button>
       </Flex>
       {loading ? (
-        <SkeletonText noOfLines={5} gap={5} />
+        <SpinnerLoading />
+      ) : news.length === 0 ? (
+        <Flex justify={"center"}>
+          <Text fontSize={"2xl"}>Tidak ada berita yang ditemukan.</Text>
+        </Flex>
       ) : (
         <>
           <Table.ScrollArea maxW={"full"}>
@@ -85,10 +108,21 @@ export default function DashboardNewsPage() {
                     </Table.Cell>
                     <Table.Cell>
                       <Button variant={"ghost"} asChild>
-                        <FcEditImage size={70} />
+                        <Link href={`/dashboard/news/${data.slug}/edit`}>
+                          <FcEditImage size={60} />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant={"ghost"}
+                        onClick={() => handleDelete(data.slug)}
+                        asChild
+                      >
+                        <FcEmptyTrash size={60} />
                       </Button>
                       <Button variant={"ghost"} asChild>
-                        <FcEmptyTrash size={70} />
+                        <Link href={`/dashboard/news/${data.slug}`}>
+                          <FcViewDetails size={60} />
+                        </Link>
                       </Button>
                     </Table.Cell>
                   </Table.Row>
@@ -116,6 +150,9 @@ export default function DashboardNewsPage() {
                   </Button>
                 )}
               />
+              <Pagination.NextTrigger asChild>
+                <TbChevronRight />
+              </Pagination.NextTrigger>
             </ButtonGroup>
           </Pagination.Root>
         </>
