@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   Box,
@@ -14,15 +14,27 @@ import {
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
 });
 
 export default function CreateNewsPage() {
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
+  const [content, setContent] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [category, setCategory] = useState<{ id: number; title: string }[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchCategory() {
+      const res = await fetch("/api/news/category");
+      const json = await res.json();
+      setCategory(json);
+      setLoading(false);
+    }
+  });
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

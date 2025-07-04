@@ -14,12 +14,14 @@ datasource db {
 }
 
 model News {
-  id        Int         @id @default(autoincrement())
-  title     String
-  slug      String      @unique
-  content   String
-  createdAt DateTime    @default(now())
-  images    NewsImage[] @relation("gambar")
+  id         Int         @id @default(autoincrement())
+  title      String
+  slug       String      @unique
+  content    String
+  images     NewsImage[] @relation("gambar")
+  category   Category    @relation("kategori", fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime    @default(now())
 }
 
 model NewsImage {
@@ -27,4 +29,10 @@ model NewsImage {
   url    String
   newsId Int
   news   News   @relation("gambar", fields: [newsId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  title String @unique
+  news  News[] @relation("kategori")
 }

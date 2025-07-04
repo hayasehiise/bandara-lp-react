@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
+    const categoryId = parseInt(formData.get("categoryId") as string);
 
     if (!title || !content) {
       return NextResponse.json(
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
         title,
         slug: slugify(title, { lower: true, strict: true }),
         content: "", // nanti diupdate setelah gambar dipindahkan
+        categoryId,
       },
     });
 
