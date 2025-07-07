@@ -23,6 +23,7 @@ interface NewsDetail {
   content: string;
   createdAt: string;
   images: { url: string }[];
+  category: { title: string };
 }
 
 export default function NewsDetailPage() {
@@ -82,6 +83,9 @@ export default function NewsDetailPage() {
           <Heading mb={2}>{data.title}</Heading>
           <Text fontSize="sm" color="gray.500" mb={4}>
             Diterbitkan pada: {new Date(data.createdAt).toLocaleString()}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mb={4}>
+            Kategori: {data.category.title}
           </Text>
         </Flex>
         <Link href={"/dashboard/news"}>

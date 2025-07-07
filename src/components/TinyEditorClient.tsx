@@ -60,6 +60,7 @@ export default function TinyEditorClient({
   return (
     <Editor
       apiKey="no-api-key"
+      licenseKey="gpl"
       value={value}
       onEditorChange={onChange}
       init={{

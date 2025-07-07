@@ -14,7 +14,6 @@ import { TbChevronLeft, TbChevronRight } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SpinnerLoading from "@/components/spinnerLoading";
-// import { useRouter } from "next/navigation";
 // import prisma from "@/lib/prisma";
 
 type NewsData = {
@@ -25,7 +24,6 @@ type NewsData = {
   createdAt: string;
 };
 export default function DashboardNewsPage() {
-  // const router = useRouter();
   const [news, setNews] = useState<NewsData[]>([]);
   const [pages, setPages] = useState<number>(1);
   const [total, setTotal] = useState<number>(1);

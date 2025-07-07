@@ -5,12 +5,13 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const slug = await params.slug;
+  const slug = params.slug;
 
   const news = await prisma.news.findUnique({
     where: { slug },
     include: {
       images: true,
+      category: true,
     },
   });
 

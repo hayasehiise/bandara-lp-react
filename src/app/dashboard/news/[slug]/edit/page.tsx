@@ -10,6 +10,9 @@ import {
   Fieldset,
   Flex,
   Input,
+  Combobox,
+  Portal,
+  useListCollection,
 } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,28 +22,54 @@ const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
 });
 
+type Category = {
+  id: number;
+  title: string;
+};
+
 export default function EditNewsPage() {
   const { slug } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [initialCategory, setInitialCategory] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const { collection, set } = useListCollection<Category>({
+    initialItems: [],
+    itemToString: (item) => item.title,
+    itemToValue: (item) => item.title,
+  });
+
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch(`/api/news/${slug}`);
-      const json = await res.json();
-      setTitle(json.title);
-      setContent(json.content);
+      const [newsRes, catRes] = await Promise.all([
+        fetch(`/api/news/${slug}`),
+        fetch("/api/news/category"),
+      ]);
+      const news = await newsRes.json();
+      const cat = await catRes.json();
+      setTitle(news.title);
+      setContent(news.content);
+      setCategoryId(news.categoryId);
+      set(cat);
+      const matchedCat = cat.find(
+        (cat: Category) => cat.id === news.categoryId
+      );
+      setInitialCategory(matchedCat?.title || "");
       setLoading(false);
     }
     fetchData();
-  }, [slug]);
+  }, [slug, set]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("content", content);
+    if (categoryId) {
+      formData.set("category", String(categoryId));
+    }
 
     const res = await fetch(`/api/news/${slug}/edit`, {
       method: "POST",
@@ -77,6 +106,42 @@ export default function EditNewsPage() {
               onChange={(e) => setTitle(e.target.value)}
               required
             />
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Kategori</Field.Label>
+            <Combobox.Root
+              collection={collection}
+              defaultInputValue={initialCategory}
+              onInputValueChange={(e) => {
+                const matched = collection.items.find(
+                  (item) => item.title === e.inputValue
+                );
+                if (matched) {
+                  setCategoryId(matched.id);
+                }
+              }}
+              name="category"
+            >
+              <Combobox.Control>
+                <Combobox.Input placeholder="Pilih Kategori" />
+                <Combobox.IndicatorGroup>
+                  <Combobox.ClearTrigger />
+                  <Combobox.Trigger />
+                </Combobox.IndicatorGroup>
+              </Combobox.Control>
+              <Portal>
+                <Combobox.Positioner>
+                  <Combobox.Content>
+                    {collection.items?.map((data) => (
+                      <Combobox.Item key={data.id} item={data}>
+                        {data.title}
+                        <Combobox.ItemIndicator />
+                      </Combobox.Item>
+                    ))}
+                  </Combobox.Content>
+                </Combobox.Positioner>
+              </Portal>
+            </Combobox.Root>
           </Field.Root>
           <Field.Root>
             <Field.Label>Konten Berita</Field.Label>

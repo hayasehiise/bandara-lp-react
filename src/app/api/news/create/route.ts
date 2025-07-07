@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
-    const categoryId = parseInt(formData.get("categoryId") as string);
+    const categoryId = parseInt(formData.get("category") as string);
 
     if (!title || !content) {
       return NextResponse.json(
