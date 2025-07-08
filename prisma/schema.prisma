@@ -32,13 +32,16 @@ model NewsImage {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  title String @unique
-  news  News[] @relation("kategori")
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String   @unique
+  news      News[]   @relation("kategori")
+  createdAt DateTime @default(now())
 }
 
 model User {
   id            Int       @id @default(autoincrement())
+  username      String    @unique
   name          String?
   email         String    @unique
   emailVerified DateTime?

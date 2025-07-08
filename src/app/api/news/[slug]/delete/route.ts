@@ -7,7 +7,7 @@ export async function DELETE(
   _: Request,
   { params }: { params: { slug: string } }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const berita = await prisma.news.findUnique({
     where: { slug },

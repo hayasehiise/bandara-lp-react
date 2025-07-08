@@ -1,21 +1,29 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { Flex, Button, Fieldset, Field, Input, Stack } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginPage() {
+  const { status } = useSession();
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
+  // const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+    }
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const res = await signIn("credentials", {
       redirect: false,
-      email,
+      username,
       password,
     });
 
@@ -46,10 +54,10 @@ export default function LoginPage() {
             </Stack>
             <Fieldset.Content>
               <Field.Root>
-                <Field.Label>Email</Field.Label>
+                <Field.Label>Username</Field.Label>
                 <Input
-                  name="email"
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="username"
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </Field.Root>
               <Field.Root>

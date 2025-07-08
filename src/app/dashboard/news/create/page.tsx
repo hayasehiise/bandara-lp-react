@@ -29,7 +29,7 @@ const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
 
 type Category = {
   id: number;
-  title: string;
+  name: string;
 };
 export default function CreateNewsPage() {
   const [content, setContent] = useState<string>("");
@@ -39,8 +39,8 @@ export default function CreateNewsPage() {
 
   const { collection, set } = useListCollection<Category>({
     initialItems: [],
-    itemToString: (item) => item.title,
-    itemToValue: (item) => item.title,
+    itemToString: (item) => item.name,
+    itemToValue: (item) => item.name,
   });
   const state = useAsync(async () => {
     const res = await fetch("/api/news/category");
@@ -103,13 +103,14 @@ export default function CreateNewsPage() {
               collection={collection}
               onInputValueChange={(e) => {
                 const matched = collection.items.find(
-                  (item) => item.title === e.inputValue
+                  (item) => item.name === e.inputValue
                 );
                 if (matched) {
                   setSelectedCategoryId(matched.id.toString());
                 }
               }}
               name="category"
+              width={"1/4"}
             >
               <Combobox.Control>
                 <Combobox.Input placeholder="Pilih Kategori" />
@@ -133,7 +134,7 @@ export default function CreateNewsPage() {
                     ) : (
                       collection.items?.map((data) => (
                         <Combobox.Item key={data.id} item={data}>
-                          {data.title}
+                          {data.name}
                           <Combobox.ItemIndicator />
                         </Combobox.Item>
                       ))

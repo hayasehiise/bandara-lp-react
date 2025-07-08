@@ -1,17 +1,12 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
+// app/dashboard/layout.tsx
+"use client";
 
-export default async function DashboardLayout({
+import SessionWrapper from "@/components/sessionWrapper";
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return redirect("/login");
-  }
-
-  return <>{children}</>;
+  return <SessionWrapper>{children}</SessionWrapper>;
 }

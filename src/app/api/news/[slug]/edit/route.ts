@@ -9,13 +9,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
+  const { slug } = await params;
   try {
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
 
     const existingNews = await prisma.news.findUnique({
-      where: { slug: params.slug },
+      where: { slug: slug },
       include: { images: true }, // if relation named `images`
     });
 

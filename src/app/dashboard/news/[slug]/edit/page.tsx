@@ -24,7 +24,7 @@ const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
 
 type Category = {
   id: number;
-  title: string;
+  name: string;
 };
 
 export default function EditNewsPage() {
@@ -38,8 +38,8 @@ export default function EditNewsPage() {
 
   const { collection, set } = useListCollection<Category>({
     initialItems: [],
-    itemToString: (item) => item.title,
-    itemToValue: (item) => item.title,
+    itemToString: (item) => item.name,
+    itemToValue: (item) => item.name,
   });
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function EditNewsPage() {
       const matchedCat = cat.find(
         (cat: Category) => cat.id === news.categoryId
       );
-      setInitialCategory(matchedCat?.title || "");
+      setInitialCategory(matchedCat?.name || "");
       setLoading(false);
     }
     fetchData();
@@ -114,13 +114,14 @@ export default function EditNewsPage() {
               defaultInputValue={initialCategory}
               onInputValueChange={(e) => {
                 const matched = collection.items.find(
-                  (item) => item.title === e.inputValue
+                  (item) => item.name === e.inputValue
                 );
                 if (matched) {
                   setCategoryId(matched.id);
                 }
               }}
               name="category"
+              width={"1/4"}
             >
               <Combobox.Control>
                 <Combobox.Input placeholder="Pilih Kategori" />
@@ -134,7 +135,7 @@ export default function EditNewsPage() {
                   <Combobox.Content>
                     {collection.items?.map((data) => (
                       <Combobox.Item key={data.id} item={data}>
-                        {data.title}
+                        {data.name}
                         <Combobox.ItemIndicator />
                       </Combobox.Item>
                     ))}

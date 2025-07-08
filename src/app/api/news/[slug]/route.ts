@@ -2,10 +2,10 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: NextRequest,
+  _: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const slug = params.slug;
+  const { slug } = await params;
 
   const news = await prisma.news.findUnique({
     where: { slug },

@@ -13,13 +13,17 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json({
-    data: news,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPage: Math.ceil(total / limit),
-    },
-  });
+  try {
+    return NextResponse.json({
+      data: news,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPage: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    return NextResponse.json({ err }, { status: 500 });
+  }
 }
