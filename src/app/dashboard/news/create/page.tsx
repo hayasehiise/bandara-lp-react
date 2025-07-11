@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAsync } from "react-use";
 import dynamic from "next/dynamic";
 import {
@@ -18,9 +18,10 @@ import {
   Spinner,
   Span,
 } from "@chakra-ui/react";
-import { Toaster, toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toaster, Toaster } from "@/components/ui/toaster";
+// import { useRouter } from "next/router";
 // import prisma from "@/lib/prisma";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
@@ -32,10 +33,37 @@ type Category = {
   name: string;
 };
 export default function CreateNewsPage() {
+  const router = useRouter();
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-  const router = useRouter();
+
+  // ini handle Submit Form
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", selectedCategoryId);
+
+    const result = await fetch("/api/news/create", {
+      method: "POST",
+      body: formData,
+    });
+
+    // const data = await result.json();
+    // console.log(result.ok);
+
+    if (!result.ok) {
+      toaster.create({
+        description: "gagal",
+        type: "error",
+      });
+    } else {
+      sessionStorage.setItem("flash", "data berhasil diinput");
+      router.push("/dashboard/news");
+    }
+  };
 
   const { collection, set } = useListCollection<Category>({
     initialItems: [],
@@ -43,36 +71,11 @@ export default function CreateNewsPage() {
     itemToValue: (item) => item.name,
   });
   const state = useAsync(async () => {
-    const res = await fetch("/api/news/category");
+    const res = await fetch("/api/category");
     const json = await res.json();
     set(json);
   }, [set]);
 
-  // ini handle Submit Form
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("category", selectedCategoryId);
-
-    const res = await fetch("/api/news/create", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      sessionStorage.setItem("flash", `${data.message}`);
-      router.push("/dashboard/news");
-    } else {
-      toaster.create({
-        description: data.error,
-        type: "error",
-      });
-    }
-  }
   return (
     <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
       <Toaster />

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
-    const categoryId = parseInt(formData.get("category") as string);
+    const categoryId = formData.get("category") as string;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -61,11 +61,7 @@ export async function POST(req: NextRequest) {
         newsId: created.id,
       })),
     });
-
-    return NextResponse.json(
-      { success: true, message: "Berita Berhasil Ditambahkan" },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error("Error creating news:", err);
     return NextResponse.json(

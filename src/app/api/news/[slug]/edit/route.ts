@@ -14,6 +14,7 @@ export async function POST(
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
+    const categoryId = formData.get("category") as string;
 
     const existingNews = await prisma.news.findUnique({
       where: { slug: slug },
@@ -64,6 +65,7 @@ export async function POST(
         title,
         slug: slugify(title, { lower: true, strict: true }),
         content,
+        categoryId,
       },
     });
 

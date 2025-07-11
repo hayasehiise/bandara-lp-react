@@ -6,13 +6,13 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   const { name } = await req.json();
   const slug = slugify(name, { lower: true });
 
   try {
     const update = await prisma.category.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: { name, slug },
     });
     return NextResponse.json(

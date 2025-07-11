@@ -20,7 +20,15 @@ export async function GET(req: NextRequest) {
     const totalPage = Math.ceil(total / limit);
 
     return NextResponse.json(
-      { data: category, page, limit, total, totalPage },
+      {
+        data: category,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPage,
+        },
+      },
       { status: 200 }
     );
   } catch (err) {

@@ -14,15 +14,18 @@ export async function GET(req: NextRequest) {
   });
 
   try {
-    return NextResponse.json({
-      data: news,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPage: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        data: news,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPage: Math.ceil(total / limit),
+        },
       },
-    });
+      { status: 200 }
+    );
   } catch (err) {
     return NextResponse.json({ err }, { status: 500 });
   }

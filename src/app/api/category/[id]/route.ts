@@ -5,10 +5,10 @@ export async function GET(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   try {
     const cat = await prisma.category.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     if (!cat) {

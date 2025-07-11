@@ -46,7 +46,7 @@ export default function EditNewsPage() {
     async function fetchData() {
       const [newsRes, catRes] = await Promise.all([
         fetch(`/api/news/${slug}`),
-        fetch("/api/news/category"),
+        fetch("/api/category"),
       ]);
       const news = await newsRes.json();
       const cat = await catRes.json();
@@ -89,7 +89,7 @@ export default function EditNewsPage() {
       <form onSubmit={handleSubmit}>
         <Fieldset.Root>
           <Flex direction={"row"} justify={"space-between"}>
-            <Fieldset.Legend fontSize={32}>Tambah Berita</Fieldset.Legend>
+            <Fieldset.Legend fontSize={32}>Edit Berita</Fieldset.Legend>
             <Link href={"/dashboard/news"}>
               <CloseButton variant={"ghost"} size={"xl"} />
             </Link>

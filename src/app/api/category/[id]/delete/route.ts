@@ -5,10 +5,10 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   try {
     await prisma.category.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
     return NextResponse.json(
       { flash: "Kategori berhasil dihapus" },
