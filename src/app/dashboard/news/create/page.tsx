@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAsync } from "react-use";
 import dynamic from "next/dynamic";
 import {
@@ -61,7 +61,10 @@ export default function CreateNewsPage() {
       });
     } else {
       sessionStorage.setItem("flash", "data berhasil diinput");
-      router.push("/dashboard/news");
+      router.refresh();
+      setTimeout(() => {
+        router.push("/dashboard/news");
+      }, 1000);
     }
   };
 
