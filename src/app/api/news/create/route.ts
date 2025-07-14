@@ -3,13 +3,22 @@ import slugify from "slugify";
 import path from "path";
 import fs from "fs/promises";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
+
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
     const categoryId = formData.get("category") as string;
+    const status = formData.get("status") as string;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -24,6 +33,8 @@ export async function POST(req: NextRequest) {
         slug: slugify(title, { lower: true, strict: true }),
         content: "", // nanti diupdate setelah gambar dipindahkan
         categoryId,
+        authorId: userId,
+        status,
       },
     });
 

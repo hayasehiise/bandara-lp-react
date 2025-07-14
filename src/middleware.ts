@@ -8,5 +8,5 @@ export default withAuth({
 
 // hanya proteksi route API, karena dashboard sudah aman dari komponen
 export const config = {
-  matcher: ["/api/:path*", "/dashboard/:path*"],
+  matcher: ["/dashboard/:path*"],
 };

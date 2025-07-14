@@ -16,7 +16,6 @@ import Link from "next/link";
 import SpinnerLoading from "@/components/spinnerLoading";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
-// import prisma from "@/lib/prisma";
 
 type NewsData = {
   slug: string;
@@ -38,17 +37,7 @@ type NewsListData = {
 };
 
 export default function DashboardNewsPage() {
-  // const [news, setNews] = useState<NewsData[]>([]);
-  // const [pagination, setPagination] = useState<PaginationData>({
-  //   page: 1,
-  //   total: 1,
-  //   limit: 1,
-  //   totalPage: 1,
-  // });
   const [pages, setPages] = useState<number>(1);
-  // const [total, setTotal] = useState<number>(1);
-  // const [totalPage, setTotalPage] = useState<number>(1);
-  // const [loading, setLoading] = useState<boolean>(true);
   const { data, error, isLoading, mutate } = useSWR<NewsListData>(
     `/api/news/list?page=${pages}&limit=10`,
     fetcher,
@@ -60,30 +49,6 @@ export default function DashboardNewsPage() {
 
   const news = data?.data ?? [];
   const total = data?.pagination?.total ?? 0;
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     const res = await fetch(
-  //       `/api/news/list?page=${pagination.page}&limit=10`
-  //     );
-  //     try {
-  //       const json = await res.json();
-  //       setNews(json.data);
-  //       setPagination((prev) => ({
-  //         ...prev,
-  //         total: json.pagination.total,
-  //         totalPage: json.pagination.totalPage,
-  //       }));
-  //       // setTotal(json.pagination.total);
-  //       // setTotalPage(json.pagination.totalPage);
-  //       setLoading(false);
-  //     } catch (err) {
-  //       console.error(err);
-  //       setLoading(true);
-  //     }
-  //   }
-  //   fetchData();
-  // }, [pagination.page]);
 
   useEffect(() => {
     const flash = sessionStorage.getItem("flash");
@@ -103,18 +68,6 @@ export default function DashboardNewsPage() {
       method: "DELETE",
     });
 
-    // if (res.ok) {
-    //   setNews((prev) => prev.filter((item) => item.slug !== slug));
-    //   setPagination((prev) => ({
-    //     ...prev,
-    //     total: prev.total - 1,
-    //   }));
-    //   // setTotal((prev) => prev - 1);
-    //   toaster.create({
-    //     description: "Berita Berhasil Dihapus",
-    //     type: "success",
-    //   });
-    // }
     if (res.ok) {
       mutate((current) => {
         if (!current) return current;
@@ -204,18 +157,6 @@ export default function DashboardNewsPage() {
               </Table.Body>
             </Table.Root>
           </Table.ScrollArea>
-          {/* <Pagination.Root
-            count={pagination.total}
-            pageSize={10}
-            page={pagination.page}
-            // onPageChange={(e) => setPages(e.page)}
-            onPageChange={(e) =>
-              setPagination((prev) => ({
-                ...prev,
-                page: e.page,
-              }))
-            }
-          > */}
           <Pagination.Root
             count={total}
             pageSize={10}

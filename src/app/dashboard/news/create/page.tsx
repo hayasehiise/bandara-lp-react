@@ -17,12 +17,12 @@ import {
   HStack,
   Spinner,
   Span,
+  Select,
+  createListCollection,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toaster, Toaster } from "@/components/ui/toaster";
-// import { useRouter } from "next/router";
-// import prisma from "@/lib/prisma";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
@@ -32,11 +32,57 @@ type Category = {
   id: number;
   name: string;
 };
+
+type SelectStatusData = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+function SelectStatus({ value, onChange }: SelectStatusData) {
+  const statusData = createListCollection({
+    items: [
+      { label: "Draft", value: "draft" },
+      { label: "Publish", value: "publish" },
+      { label: "Archived", value: "archive" },
+    ],
+  });
+
+  return (
+    <Select.Root
+      collection={statusData}
+      width={"320px"}
+      value={value ? [value] : []}
+      onValueChange={(e) => onChange(e.value[0])}
+    >
+      <Select.HiddenSelect />
+      <Select.Label>Status</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Pilih Status" />
+          <Select.Indicator />
+        </Select.Trigger>
+      </Select.Control>
+      <Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {statusData.items.map((item) => (
+              <Select.Item item={item} key={item.value}>
+                {item.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
+  );
+}
+
 export default function CreateNewsPage() {
   const router = useRouter();
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectStatus, setSelectStatus] = useState<string>("");
 
   // ini handle Submit Form
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,6 +91,7 @@ export default function CreateNewsPage() {
     formData.append("title", title);
     formData.append("content", content);
     formData.append("category", selectedCategoryId);
+    formData.append("status", selectStatus);
 
     const result = await fetch("/api/news/create", {
       method: "POST",
@@ -149,6 +196,9 @@ export default function CreateNewsPage() {
                 </Combobox.Positioner>
               </Portal>
             </Combobox.Root>
+          </Field.Root>
+          <Field.Root>
+            <SelectStatus value={selectStatus} onChange={setSelectStatus} />
           </Field.Root>
           <Field.Root>
             <Field.Label>Konten Berita</Field.Label>
