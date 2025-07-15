@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useAsync } from "react-use";
 import dynamic from "next/dynamic";
 import {
   Box,
   Button,
   CloseButton,
-  Combobox,
   Portal,
-  useListCollection,
   Field,
   Fieldset,
   Flex,
@@ -23,20 +20,87 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toaster, Toaster } from "@/components/ui/toaster";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
+// import SpinnerLoading from "@/components/spinnerLoading";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
 });
 
-type Category = {
-  id: number;
-  name: string;
-};
-
 type SelectStatusData = {
   value: string;
   onChange: (val: string) => void;
 };
+
+type SelectCategoryData = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+function SelectCategory({ value, onChange }: SelectCategoryData) {
+  type CategoryDataType = {
+    id: string;
+    name: string;
+  };
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useSWR<CategoryDataType[]>("/api/category", fetcher);
+  const categoryCollection = createListCollection({
+    items:
+      categories?.map((cat) => ({
+        label: cat.name,
+        value: cat.id,
+      })) ?? [],
+  });
+
+  if (isLoading) {
+    return (
+      <HStack>
+        <Spinner size="xs" borderWidth="1px" />
+        <Span>Loading...</Span>
+      </HStack>
+    );
+  }
+  if (error) {
+    return (
+      <Span p="2" color="fg.error">
+        Error fetching
+      </Span>
+    );
+  }
+  return (
+    <Select.Root
+      collection={categoryCollection}
+      width={"320px"}
+      value={value ? [value] : []}
+      onValueChange={(e) => onChange(e.value[0] ?? null)}
+      disabled={categoryCollection.items.length === 0}
+    >
+      <Select.HiddenSelect name="categoryId" />
+      <Select.Label>Kategori</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Pilih Kategori" />
+          <Select.Indicator />
+        </Select.Trigger>
+      </Select.Control>
+      <Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {categoryCollection.items.map((item) => (
+              <Select.Item item={item} key={item.value}>
+                {item.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
+  );
+}
 
 function SelectStatus({ value, onChange }: SelectStatusData) {
   const statusData = createListCollection({
@@ -54,7 +118,7 @@ function SelectStatus({ value, onChange }: SelectStatusData) {
       value={value ? [value] : []}
       onValueChange={(e) => onChange(e.value[0])}
     >
-      <Select.HiddenSelect />
+      <Select.HiddenSelect name="status" />
       <Select.Label>Status</Select.Label>
       <Select.Control>
         <Select.Trigger>
@@ -98,9 +162,6 @@ export default function CreateNewsPage() {
       body: formData,
     });
 
-    // const data = await result.json();
-    // console.log(result.ok);
-
     if (!result.ok) {
       toaster.create({
         description: "gagal",
@@ -114,17 +175,6 @@ export default function CreateNewsPage() {
       }, 1000);
     }
   };
-
-  const { collection, set } = useListCollection<Category>({
-    initialItems: [],
-    itemToString: (item) => item.name,
-    itemToValue: (item) => item.name,
-  });
-  const state = useAsync(async () => {
-    const res = await fetch("/api/category");
-    const json = await res.json();
-    set(json);
-  }, [set]);
 
   return (
     <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
@@ -151,51 +201,10 @@ export default function CreateNewsPage() {
             />
           </Field.Root>
           <Field.Root>
-            <Field.Label>Kategori</Field.Label>
-            <Combobox.Root
-              collection={collection}
-              onInputValueChange={(e) => {
-                const matched = collection.items.find(
-                  (item) => item.name === e.inputValue
-                );
-                if (matched) {
-                  setSelectedCategoryId(matched.id.toString());
-                }
-              }}
-              name="category"
-              width={"1/4"}
-            >
-              <Combobox.Control>
-                <Combobox.Input placeholder="Pilih Kategori" />
-                <Combobox.IndicatorGroup>
-                  <Combobox.ClearTrigger />
-                  <Combobox.Trigger />
-                </Combobox.IndicatorGroup>
-              </Combobox.Control>
-              <Portal>
-                <Combobox.Positioner>
-                  <Combobox.Content>
-                    {state.loading ? (
-                      <HStack>
-                        <Spinner size="xs" borderWidth="1px" />
-                        <Span>Loading...</Span>
-                      </HStack>
-                    ) : state.error ? (
-                      <Span p="2" color="fg.error">
-                        Error fetching
-                      </Span>
-                    ) : (
-                      collection.items?.map((data) => (
-                        <Combobox.Item key={data.id} item={data}>
-                          {data.name}
-                          <Combobox.ItemIndicator />
-                        </Combobox.Item>
-                      ))
-                    )}
-                  </Combobox.Content>
-                </Combobox.Positioner>
-              </Portal>
-            </Combobox.Root>
+            <SelectCategory
+              value={selectedCategoryId}
+              onChange={setSelectedCategoryId}
+            />
           </Field.Root>
           <Field.Root>
             <SelectStatus value={selectStatus} onChange={setSelectStatus} />

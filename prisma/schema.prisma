@@ -21,14 +21,14 @@ model News {
   content String @db.LongText
 
   // Relasi Ke Upload Image News
-  images NewsImage[] @relation("gambar")
+  images NewsImage[]
 
   // Relasi Ke Kategori
-  category   Category @relation("kategori", fields: [categoryId], references: [id])
   categoryId String   @db.Char(36)
+  category   Category @relation(fields: [categoryId], references: [id])
 
   // Relasi ke Author
-  author   User   @relation("author", fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id])
   authorId String @db.Char(36)
 
   createdAt DateTime @default(now())
@@ -38,14 +38,14 @@ model NewsImage {
   id     String @id @default(uuid()) @db.Char(36)
   url    String
   newsId String @db.Char(36)
-  news   News   @relation("gambar", fields: [newsId], references: [id], onDelete: Cascade)
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }
 
 model Category {
   id        String   @id @default(uuid()) @db.Char(36)
   name      String   @unique
   slug      String   @unique
-  news      News[]   @relation("kategori")
+  news      News[]
   createdAt DateTime @default(now())
 }
 
@@ -63,7 +63,7 @@ model User {
   sessions      Session[]
 
   // News untuk User
-  News News[] @relation("author")
+  News News[]
 }
 
 model Account {

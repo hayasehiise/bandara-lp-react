@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = session.user.id;
+    const userId = session?.user.id;
 
     const formData = await req.formData();
     const title = formData.get("title") as string;

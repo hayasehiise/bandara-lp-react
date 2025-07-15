@@ -1,12 +1,14 @@
 import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
-  pages: {
-    signIn: "/login",
-  },
+  // ke mana user dialihkan jika belum login
+  pages: { signIn: "/login" },
 });
 
-// hanya proteksi route API, karena dashboard sudah aman dari komponen
+/**
+ * Middleware hanya dijalankan pada URL yang cocok dengan pola ini.
+ * Semua path di luar /dashboard/* tidak diproses, sehingga tetap publik.
+ */
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*"], // ⬅️  cuma /dashboard dan turunannya
 };

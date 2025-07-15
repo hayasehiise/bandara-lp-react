@@ -18,11 +18,18 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 
 type NewsData = {
+  category: {
+    name: string;
+  };
+  author: {
+    name: string;
+  };
   slug: string;
   id: number;
   title: string;
   content: string;
   createdAt: string;
+  status: string;
 };
 type PaginationData = {
   total: number;
@@ -121,7 +128,10 @@ export default function DashboardNewsPage() {
                 <Table.Row>
                   <Table.ColumnHeader>#</Table.ColumnHeader>
                   <Table.ColumnHeader>Title</Table.ColumnHeader>
+                  <Table.ColumnHeader>Category</Table.ColumnHeader>
+                  <Table.ColumnHeader>Author</Table.ColumnHeader>
                   <Table.ColumnHeader>Created At</Table.ColumnHeader>
+                  <Table.ColumnHeader>Status</Table.ColumnHeader>
                   <Table.ColumnHeader>Action</Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
@@ -130,6 +140,9 @@ export default function DashboardNewsPage() {
                   <Table.Row key={index}>
                     <Table.Cell>{index + 1}</Table.Cell>
                     <Table.Cell>{data.title}</Table.Cell>
+                    <Table.Cell>{data.category.name}</Table.Cell>
+                    <Table.Cell>{data.author.name}</Table.Cell>
+                    <Table.Cell>{data.status}</Table.Cell>
                     <Table.Cell>
                       {new Date(data.createdAt).toLocaleString()}
                     </Table.Cell>

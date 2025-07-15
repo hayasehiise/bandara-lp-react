@@ -12,6 +12,7 @@ export async function GET(
     include: {
       images: true,
       category: true,
+      author: true,
     },
   });
 

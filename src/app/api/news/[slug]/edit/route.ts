@@ -4,6 +4,8 @@ import slugify from "slugify";
 import path from "path";
 import fs from "fs/promises";
 import { extractImageUrls } from "@/lib/extractImageUrls";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
@@ -11,14 +13,22 @@ export async function POST(
 ) {
   const { slug } = await params;
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const userId = session?.user.id;
+
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
     const categoryId = formData.get("category") as string;
+    const status = formData.get("status") as string;
 
     const existingNews = await prisma.news.findUnique({
       where: { slug: slug },
-      include: { images: true }, // if relation named `images`
+      include: { images: true, category: true }, // if relation named `images`
     });
 
     if (!existingNews) {
@@ -65,7 +75,9 @@ export async function POST(
         title,
         slug: slugify(title, { lower: true, strict: true }),
         content,
+        // category: categoryId ? { connect: { id: categoryId } } : undefined,
         categoryId,
+        status,
       },
     });
 

@@ -10,65 +10,170 @@ import {
   Fieldset,
   Flex,
   Input,
-  Combobox,
   Portal,
-  useListCollection,
+  Select,
+  createListCollection,
+  HStack,
+  Spinner,
+  Span,
 } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import SpinnerLoading from "@/components/spinnerLoading";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
   ssr: false,
 });
 
-type Category = {
-  id: number;
-  name: string;
+type SelectStatusData = {
+  value: string;
+  onChange: (val: string) => void;
 };
+
+type SelectCategoryData = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+function SelectCategory({ value, onChange }: SelectCategoryData) {
+  type CategoryDataType = {
+    id: string;
+    name: string;
+  };
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useSWR<CategoryDataType[]>("/api/category", fetcher);
+  const categoryCollection = createListCollection({
+    items:
+      categories?.map((cat) => ({
+        label: cat.name,
+        value: cat.id,
+      })) ?? [],
+  });
+
+  if (isLoading) {
+    return (
+      <HStack>
+        <Spinner size="xs" borderWidth="1px" />
+        <Span>Loading...</Span>
+      </HStack>
+    );
+  }
+  if (error) {
+    return (
+      <Span p="2" color="fg.error">
+        Error fetching
+      </Span>
+    );
+  }
+  return (
+    <Select.Root
+      collection={categoryCollection}
+      width={"320px"}
+      value={value ? [value] : []}
+      onValueChange={(e) => onChange(e.value[0] ?? null)}
+      disabled={categoryCollection.items.length === 0}
+    >
+      <Select.HiddenSelect name="categoryId" />
+      <Select.Label>Kategori</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Pilih Kategori" />
+          <Select.Indicator />
+        </Select.Trigger>
+      </Select.Control>
+      <Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {categoryCollection.items.map((item) => (
+              <Select.Item item={item} key={item.value}>
+                {item.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
+  );
+}
+
+function SelectStatus({ value, onChange }: SelectStatusData) {
+  const statusData = createListCollection({
+    items: [
+      { label: "Draft", value: "draft" },
+      { label: "Publish", value: "publish" },
+      { label: "Archived", value: "archive" },
+    ],
+  });
+
+  return (
+    <Select.Root
+      collection={statusData}
+      width={"320px"}
+      value={value ? [value] : []}
+      onValueChange={(e) => onChange(e.value[0])}
+    >
+      <Select.HiddenSelect name="status" />
+      <Select.Label>Status</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Pilih Status" />
+          <Select.Indicator />
+        </Select.Trigger>
+      </Select.Control>
+      <Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {statusData.items.map((item) => (
+              <Select.Item item={item} key={item.value}>
+                {item.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
+  );
+}
 
 export default function EditNewsPage() {
   const { slug } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [initialCategory, setInitialCategory] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [status, setStatus] = useState("");
+  // const [initialCategory, setInitialCategory] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const { collection, set } = useListCollection<Category>({
-    initialItems: [],
-    itemToString: (item) => item.name,
-    itemToValue: (item) => item.name,
-  });
-
   useEffect(() => {
     async function fetchData() {
-      const [newsRes, catRes] = await Promise.all([
-        fetch(`/api/news/${slug}`),
-        fetch("/api/category"),
-      ]);
+      // const [newsRes, catRes] = await Promise.all([
+      //   fetch(`/api/news/${slug}`),
+      //   fetch("/api/category"),
+      // ]);
+      const newsRes = await fetch(`/api/news/${slug}`);
       const news = await newsRes.json();
-      const cat = await catRes.json();
+      // const cat = await catRes.json();
       setTitle(news.title);
       setContent(news.content);
       setCategoryId(news.categoryId);
-      set(cat);
-      const matchedCat = cat.find(
-        (cat: Category) => cat.id === news.categoryId
-      );
-      setInitialCategory(matchedCat?.name || "");
+      setStatus(news.status);
       setLoading(false);
     }
     fetchData();
-  }, [slug, set]);
+  }, [slug]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("content", content);
     if (categoryId) {
-      formData.set("category", String(categoryId));
+      formData.set("category", categoryId);
     }
 
     const res = await fetch(`/api/news/${slug}/edit`, {
@@ -108,41 +213,10 @@ export default function EditNewsPage() {
             />
           </Field.Root>
           <Field.Root>
-            <Field.Label>Kategori</Field.Label>
-            <Combobox.Root
-              collection={collection}
-              defaultInputValue={initialCategory}
-              onInputValueChange={(e) => {
-                const matched = collection.items.find(
-                  (item) => item.name === e.inputValue
-                );
-                if (matched) {
-                  setCategoryId(matched.id);
-                }
-              }}
-              name="category"
-              width={"1/4"}
-            >
-              <Combobox.Control>
-                <Combobox.Input placeholder="Pilih Kategori" />
-                <Combobox.IndicatorGroup>
-                  <Combobox.ClearTrigger />
-                  <Combobox.Trigger />
-                </Combobox.IndicatorGroup>
-              </Combobox.Control>
-              <Portal>
-                <Combobox.Positioner>
-                  <Combobox.Content>
-                    {collection.items?.map((data) => (
-                      <Combobox.Item key={data.id} item={data}>
-                        {data.name}
-                        <Combobox.ItemIndicator />
-                      </Combobox.Item>
-                    ))}
-                  </Combobox.Content>
-                </Combobox.Positioner>
-              </Portal>
-            </Combobox.Root>
+            <SelectCategory value={categoryId} onChange={setCategoryId} />
+          </Field.Root>
+          <Field.Root>
+            <SelectStatus value={status} onChange={setStatus} />
           </Field.Root>
           <Field.Root>
             <Field.Label>Konten Berita</Field.Label>
