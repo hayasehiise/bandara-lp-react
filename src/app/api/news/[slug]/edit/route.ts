@@ -25,6 +25,7 @@ export async function POST(
     let content = formData.get("content") as string;
     const categoryId = formData.get("category") as string;
     const status = formData.get("status") as string;
+    const thumbnailFile = formData.get("thumbnail") as File;
 
     const existingNews = await prisma.news.findUnique({
       where: { slug: slug },
@@ -51,7 +52,9 @@ export async function POST(
     const allFiles = await fs.readdir(oldDir);
     const unused = allFiles.filter((file) => !usedNewFiles.includes(file));
     for (const file of unused) {
-      await fs.unlink(path.join(oldDir, file));
+      if (!file.startsWith("thumb-")) {
+        await fs.unlink(path.join(oldDir, file));
+      }
     }
 
     // Pindahkan dari temp → berita-{id}
@@ -68,6 +71,28 @@ export async function POST(
       );
     }
 
+    // Update thumbnail
+    let thumbnailPath = existingNews.thumbnail;
+    if (thumbnailFile && typeof thumbnailFile === "object") {
+      const arrayBuffer = await thumbnailFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const ext = thumbnailFile.name.split(".").pop();
+      const filename = `thumb-${Date.now()}.${ext}`;
+      const filePath = path.join(oldDir, filename);
+      await fs.writeFile(filePath, buffer);
+      thumbnailPath = `/uploads/berita-${newsId}/${filename}`;
+
+      // Hapus thumbnail lama jika ada dan berbeda
+      if (existingNews.thumbnail && existingNews.thumbnail !== thumbnailPath) {
+        const oldThumb = path.join(
+          process.cwd(),
+          "public",
+          existingNews.thumbnail
+        );
+        await fs.unlink(oldThumb).catch(() => {});
+      }
+    }
+
     // Update berita
     const updated = await prisma.news.update({
       where: { id: newsId },
@@ -75,9 +100,9 @@ export async function POST(
         title,
         slug: slugify(title, { lower: true, strict: true }),
         content,
-        // category: categoryId ? { connect: { id: categoryId } } : undefined,
         categoryId,
         status,
+        thumbnail: thumbnailPath,
       },
     });
 

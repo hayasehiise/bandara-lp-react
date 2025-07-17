@@ -8,18 +8,24 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    // pengecekan session apakah sudah login atau belum
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const userId = session?.user.id;
 
+    // initialize data form untuk di input
     const formData = await req.formData();
     const title = formData.get("title") as string;
     let content = formData.get("content") as string;
     const categoryId = formData.get("category") as string;
     const status = formData.get("status") as string;
+    const thumbnailFile = formData.get("thumbnail") as File;
 
+    console.log(formData);
+
+    // validation jika title atau konten kosong
     if (!title || !content) {
       return NextResponse.json(
         { error: "Title dan konten wajib diisi." },
@@ -27,6 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // memasukan data awal ke database untuk mendapatkan UUID
     const created = await prisma.news.create({
       data: {
         title,
@@ -38,6 +45,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // memulai upload gambar
     const tempDir = path.join(process.cwd(), "public/uploads/temp");
     const targetDir = path.join(
       process.cwd(),
@@ -61,17 +69,36 @@ export async function POST(req: NextRequest) {
       images.push({ url: `/uploads/berita-${created.id}/${file}` });
     }
 
+    // Handle thumbnail
+    let thumbnailPath: string | null = null;
+    if (thumbnailFile && typeof thumbnailFile === "object") {
+      const arrayBuffer = await thumbnailFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const ext = thumbnailFile.name.split(".").pop();
+      const filename = `thumb-${Date.now()}.${ext}`;
+      const filePath = path.join(targetDir, filename);
+      await fs.writeFile(filePath, buffer);
+      thumbnailPath = `/uploads/berita-${created.id}/${filename}`;
+    }
+
+    // memasukan data image setelah upload gambar
     await prisma.news.update({
       where: { id: created.id },
-      data: { content },
+      data: {
+        content,
+        thumbnail: thumbnailPath,
+      },
     });
 
-    await prisma.newsImage.createMany({
-      data: images.map((img) => ({
-        url: img.url,
-        newsId: created.id,
-      })),
-    });
+    if (images.length > 0) {
+      await prisma.newsImage.createMany({
+        data: images.map((img) => ({
+          url: img.url,
+          newsId: created.id,
+        })),
+      });
+    }
+
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error("Error creating news:", err);

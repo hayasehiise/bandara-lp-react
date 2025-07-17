@@ -64,7 +64,7 @@ export default function Navbar() {
             textDecoration={"none"}
             color={"white"}
             _hover={{ color: "black" }}
-            href="#"
+            href="/berita"
           >
             Berita
           </Link>

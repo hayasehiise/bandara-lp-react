@@ -1,26 +1,25 @@
 import "./shapeDivider.css";
 import Navbar from "@/components/navbar";
-import SliderImage from "@/components/index/sliderImageSection";
-import HeroSection from "@/components/index/HeroSection";
-import LiveInfoAirplane from "@/components/index/LiveInfo";
-import InfoTerkini from "@/components/index/InfoTerkini";
+import IndexComponents from "@/components/index/IndexComponents";
 
 export default function Home() {
   return (
     <>
       <Navbar />
       {/* Hero Section */}
-      <HeroSection />
+      {/* <HeroSection /> */}
       {/* End Hero Section */}
       {/* Slider Section */}
-      <SliderImage />
+      {/* <SliderImage /> */}
       {/* End Slider Section */}
       {/* Section Info Penerbangan */}
-      <LiveInfoAirplane />
+      {/* <LiveInfoAirplane /> */}
       {/* End Section Live Penerbangan */}
       {/* Info Terkini */}
-      <InfoTerkini />
+      {/* <InfoTerkini /> */}
       {/* End Info Terkini */}
+
+      <IndexComponents />
     </>
   );
 }

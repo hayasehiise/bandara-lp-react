@@ -16,6 +16,8 @@ import {
   Span,
   Select,
   createListCollection,
+  FileUpload,
+  Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -147,6 +149,7 @@ export default function CreateNewsPage() {
   const [title, setTitle] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectStatus, setSelectStatus] = useState<string>("");
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null);
 
   // ini handle Submit Form
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -156,6 +159,9 @@ export default function CreateNewsPage() {
     formData.append("content", content);
     formData.append("category", selectedCategoryId);
     formData.append("status", selectStatus);
+    if (thumbnailImage) {
+      formData.append("thumbnail", thumbnailImage);
+    }
 
     const result = await fetch("/api/news/create", {
       method: "POST",
@@ -205,6 +211,33 @@ export default function CreateNewsPage() {
               value={selectedCategoryId}
               onChange={setSelectedCategoryId}
             />
+          </Field.Root>
+          <Field.Root>
+            <FileUpload.Root gap="1" maxWidth="300px">
+              <FileUpload.HiddenInput
+                name="thumbnail"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setThumbnailImage(file);
+                }}
+              />
+              <FileUpload.Label>Upload file</FileUpload.Label>
+              <Input asChild>
+                <FileUpload.Trigger>
+                  <FileUpload.FileText />
+                </FileUpload.Trigger>
+              </Input>
+            </FileUpload.Root>
+            {thumbnailImage && (
+              <Box mt={2}>
+                <Image
+                  src={URL.createObjectURL(thumbnailImage)}
+                  alt="Preview"
+                  style={{ maxHeight: "150px", objectFit: "contain" }}
+                />
+              </Box>
+            )}
           </Field.Root>
           <Field.Root>
             <SelectStatus value={selectStatus} onChange={setSelectStatus} />
