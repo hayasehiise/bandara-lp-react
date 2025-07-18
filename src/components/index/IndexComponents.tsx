@@ -21,7 +21,6 @@ import { Autoplay } from "swiper/modules";
 import { Image } from "@chakra-ui/react";
 import "swiper/css";
 import dynamic from "next/dynamic";
-// import InstagramSlider from "./InstagramSlider";
 
 const InstagramSlider = dynamic(() => import("./InstagramSlider"), {
   ssr: false,

@@ -24,6 +24,7 @@ import Link from "next/link";
 import { toaster, Toaster } from "@/components/ui/toaster";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
+import SidebarDashboard from "@/components/dashboard/sidebar";
 // import SpinnerLoading from "@/components/spinnerLoading";
 
 const TinyEditor = dynamic(() => import("@/components/TinyEditor"), {
@@ -183,80 +184,85 @@ export default function CreateNewsPage() {
   };
 
   return (
-    <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
-      <Toaster />
-      <form onSubmit={handleSubmit}>
-        <Fieldset.Root>
-          <Flex direction={"row"} justify={"space-between"}>
-            <Fieldset.Legend fontSize={32}>Tambah Berita</Fieldset.Legend>
-            <Link href={"/dashboard/news"}>
-              <CloseButton variant={"ghost"} size={"xl"} />
-            </Link>
-          </Flex>
-          <Field.Root>
-            <Field.Label>Title Berita</Field.Label>
-            <Input
-              width={"1/4"}
-              id="title"
-              name="title"
-              type="text"
-              placeholder="Masukkan judul berita"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </Field.Root>
-          <Field.Root>
-            <SelectCategory
-              value={selectedCategoryId}
-              onChange={setSelectedCategoryId}
-            />
-          </Field.Root>
-          <Field.Root>
-            <FileUpload.Root gap="1" maxWidth="300px">
-              <FileUpload.HiddenInput
-                name="thumbnail"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setThumbnailImage(file);
-                }}
-              />
-              <FileUpload.Label>Upload file</FileUpload.Label>
-              <Input asChild>
-                <FileUpload.Trigger>
-                  <FileUpload.FileText />
-                </FileUpload.Trigger>
-              </Input>
-            </FileUpload.Root>
-            {thumbnailImage && (
-              <Box mt={2}>
-                <Image
-                  src={URL.createObjectURL(thumbnailImage)}
-                  alt="Preview"
-                  style={{ maxHeight: "150px", objectFit: "contain" }}
+    <>
+      <Flex direction={"row"} width={"full"}>
+        <SidebarDashboard />
+        <Box width={"full"} mx="auto" gap={5} py={10} px={4}>
+          <Toaster />
+          <form onSubmit={handleSubmit}>
+            <Fieldset.Root>
+              <Flex direction={"row"} justify={"space-between"}>
+                <Fieldset.Legend fontSize={32}>Tambah Berita</Fieldset.Legend>
+                <Link href={"/dashboard/news"}>
+                  <CloseButton variant={"ghost"} size={"xl"} />
+                </Link>
+              </Flex>
+              <Field.Root>
+                <Field.Label>Title Berita</Field.Label>
+                <Input
+                  width={"1/4"}
+                  id="title"
+                  name="title"
+                  type="text"
+                  placeholder="Masukkan judul berita"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
                 />
-              </Box>
-            )}
-          </Field.Root>
-          <Field.Root>
-            <SelectStatus value={selectStatus} onChange={setSelectStatus} />
-          </Field.Root>
-          <Field.Root>
-            <Field.Label>Konten Berita</Field.Label>
-            <input type="hidden" name="content" value={content} />
-            <TinyEditor value={content} onChange={setContent} />
-          </Field.Root>
-        </Fieldset.Root>
-        <Button
-          marginTop={5}
-          type="submit"
-          colorScheme="blue"
-          alignSelf="flex-end"
-        >
-          Simpan Berita
-        </Button>
-      </form>
-    </Box>
+              </Field.Root>
+              <Field.Root>
+                <SelectCategory
+                  value={selectedCategoryId}
+                  onChange={setSelectedCategoryId}
+                />
+              </Field.Root>
+              <Field.Root>
+                <FileUpload.Root gap="1" maxWidth="300px">
+                  <FileUpload.HiddenInput
+                    name="thumbnail"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setThumbnailImage(file);
+                    }}
+                  />
+                  <FileUpload.Label>Upload Thumbnail</FileUpload.Label>
+                  <Input asChild>
+                    <FileUpload.Trigger>
+                      <FileUpload.FileText />
+                    </FileUpload.Trigger>
+                  </Input>
+                </FileUpload.Root>
+                {thumbnailImage && (
+                  <Box mt={2}>
+                    <Image
+                      src={URL.createObjectURL(thumbnailImage)}
+                      alt="Preview"
+                      style={{ maxHeight: "150px", objectFit: "contain" }}
+                    />
+                  </Box>
+                )}
+              </Field.Root>
+              <Field.Root>
+                <SelectStatus value={selectStatus} onChange={setSelectStatus} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Konten Berita</Field.Label>
+                <input type="hidden" name="content" value={content} />
+                <TinyEditor value={content} onChange={setContent} />
+              </Field.Root>
+            </Fieldset.Root>
+            <Button
+              marginTop={5}
+              type="submit"
+              colorScheme="blue"
+              alignSelf="flex-end"
+            >
+              Simpan Berita
+            </Button>
+          </form>
+        </Box>
+      </Flex>
+    </>
   );
 }

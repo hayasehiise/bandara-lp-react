@@ -16,6 +16,8 @@ import {
   HStack,
   Spinner,
   Span,
+  FileUpload,
+  Image,
 } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -146,27 +148,32 @@ export default function EditNewsPage() {
   const [content, setContent] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [status, setStatus] = useState("");
-  // const [initialCategory, setInitialCategory] = useState<string>("");
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [previewThumbnail, setPreviewThumbnail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
-      // const [newsRes, catRes] = await Promise.all([
-      //   fetch(`/api/news/${slug}`),
-      //   fetch("/api/category"),
-      // ]);
       const newsRes = await fetch(`/api/news/${slug}`);
       const news = await newsRes.json();
-      // const cat = await catRes.json();
       setTitle(news.title);
       setContent(news.content);
       setCategoryId(news.categoryId);
       setStatus(news.status);
+      setPreviewThumbnail(news.thumbnail ?? null);
       setLoading(false);
     }
     fetchData();
   }, [slug]);
+
+  function handleThumbnailChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (file) {
+      setThumbnail(file);
+      setPreviewThumbnail(URL.createObjectURL(file)); // Preview langsung dari file baru
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -174,6 +181,9 @@ export default function EditNewsPage() {
     formData.set("content", content);
     if (categoryId) {
       formData.set("category", categoryId);
+    }
+    if (thumbnail) {
+      formData.set("thumbnail", thumbnail);
     }
 
     const res = await fetch(`/api/news/${slug}/edit`, {
@@ -217,6 +227,30 @@ export default function EditNewsPage() {
           </Field.Root>
           <Field.Root>
             <SelectStatus value={status} onChange={setStatus} />
+          </Field.Root>
+          <Field.Root>
+            <FileUpload.Root gap="1" maxWidth="300px">
+              <FileUpload.HiddenInput
+                name="thumbnail"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+              />
+              <FileUpload.Label>Upload Thumbnail</FileUpload.Label>
+              <Input asChild>
+                <FileUpload.Trigger>
+                  <FileUpload.FileText />
+                </FileUpload.Trigger>
+              </Input>
+            </FileUpload.Root>
+            {previewThumbnail && (
+              <Box mt={2}>
+                <Image
+                  src={previewThumbnail}
+                  alt="Preview"
+                  style={{ maxHeight: "150px", objectFit: "contain" }}
+                />
+              </Box>
+            )}
           </Field.Root>
           <Field.Root>
             <Field.Label>Konten Berita</Field.Label>
